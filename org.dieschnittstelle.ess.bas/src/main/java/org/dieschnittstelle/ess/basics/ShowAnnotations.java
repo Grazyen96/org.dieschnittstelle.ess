@@ -3,6 +3,7 @@ package org.dieschnittstelle.ess.basics;
 
 import org.dieschnittstelle.ess.basics.annotations.AnnotatedStockItemBuilder;
 import org.dieschnittstelle.ess.basics.annotations.StockItemProxyImpl;
+import org.dieschnittstelle.ess.basics.annotations.DisplayAs;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -53,17 +54,18 @@ public class ShowAnnotations {
 			}
 
 			for (Field field : instance.getClass().getDeclaredFields()) {
+
+				DisplayAs displayAs = field.getAnnotation(DisplayAs.class);
+				String displayName = (displayAs != null && !(displayAs.value().isEmpty())) ? displayAs.value() : field.getName();
 				String getterName= getAccessorNameForField("get",field.getName());
 //				show("getName:" + getterName);
 				Method getter = instance.getClass().getDeclaredMethod(getterName);
 //				show (" getter: " + getter.invoke(instance));
-				result.append(field.getName()).append(":").append(getter.invoke(instance)).append(", ");
-				instanceAttributes2.put(field.getName(), getter.invoke(instance).toString());
+				result.append(displayName).append(":").append(getter.invoke(instance)).append(", ");
+				instanceAttributes2.put(displayName, getter.invoke(instance).toString());
 			}
 			result.deleteCharAt(result.length()-2);
 			result.append("}");
-
-
 
 			show("instance attributes dirty: {" + instance.getClass().getName() + " " + instanceAttributes.keySet() + "}");
 			show("instance attributes getter way: " + instance.getClass().getSimpleName() + " " + instanceAttributes2);
@@ -72,17 +74,19 @@ public class ShowAnnotations {
 
 
 
-			// TODO BAS2: create a string representation of instance by iterating
+			// DONE BAS2: create a string representation of instance by iterating
 			//  over the object's attributes / fields as provided by its class
 			//  and reading out the attribute values. The string representation
 			//  will then be built from the field names and field values.
 			//  Note that only read-access to fields via getters or direct access
 			//  is required here.
 
-			// TODO BAS3: if the new @DisplayAs annotation is present on a field,
+			// DONE BAS3: if the new @DisplayAs annotation is present on a field,
 			//  the string representation will not use the field's name, but the name
 			//  specified in the the annotation. Regardless of @DisplayAs being present
 			//  or not, the field's value will be included in the string representation.
+
+
 
 		}
 		catch (Exception e) {
