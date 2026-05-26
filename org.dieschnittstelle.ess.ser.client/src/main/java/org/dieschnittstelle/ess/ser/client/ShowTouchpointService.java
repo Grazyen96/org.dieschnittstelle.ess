@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
@@ -181,6 +182,22 @@ public class ShowTouchpointService {
 		createClient();
 
 		logger.debug("client running: {}",client.isRunning());
+
+		try{
+			HttpDelete delete = new HttpDelete("http://localhost:8080/api/touchpoints/" + tp.getId());
+
+			Future<HttpResponse> responseFuture= client.execute(delete,null);
+
+			// get the response from the Future object
+			HttpResponse response = responseFuture.get();
+
+			// log the status line
+			show("got response: %s", response);
+
+		}catch (Exception e) {
+			logger.error("got exception: " + e, e);
+			throw new RuntimeException(e);
+		}
 
 	}
 
