@@ -2,11 +2,17 @@ package org.dieschnittstelle.ess.jrs.client.junit;
 
 import java.util.List;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import org.apache.logging.log4j.Logger;
 import org.dieschnittstelle.ess.entities.erp.AbstractProduct;
 import org.dieschnittstelle.ess.entities.erp.IndividualisedProductItem;
 
 import org.dieschnittstelle.ess.jrs.IProductCRUDService;
+import org.dieschnittstelle.ess.jrs.client.jackson.LaissezFairePolymorphicJacksonProvider;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+
+import static org.dieschnittstelle.ess.utils.Utils.show;
 
 public class ProductCRUDRESTClient {
 
@@ -18,9 +24,20 @@ public class ProductCRUDRESTClient {
 
 
 		/*
-		 * TODO: JRS2: create a client for the web service using ResteasyClientBuilder and ResteasyWebTarget
+		 * DONE: JRS2: create a client for the web service using ResteasyClientBuilder and ResteasyWebTarget
 		 */
-		serviceProxy = null;
+
+		boolean async = false;
+
+		Client client = ClientBuilder.newBuilder()
+				.build().register(LaissezFairePolymorphicJacksonProvider.class);
+		ResteasyWebTarget target = (ResteasyWebTarget)client.target("http://localhost:8080/api/" + (async ? "async/" : ""));
+		IProductCRUDService serviceProxy = target.proxy(IProductCRUDService.class);
+
+		show("serviceProxy: " + serviceProxy + " of class: " + serviceProxy.getClass());
+		this.serviceProxy = target.proxy(IProductCRUDService.class);
+
+
 	}
 
 	public AbstractProduct createProduct(IndividualisedProductItem prod) {
