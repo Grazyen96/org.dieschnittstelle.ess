@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.annotation.JsonTypeId;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -214,13 +215,27 @@ public class JSONObjectMapper {
 				// check whether we have an abstract class that has jsontype
 				// info present
 				if (Modifier.isAbstract(((Class) type).getModifiers())) {
-					// TODO: include a handling for abstract classes considering
-					// the JsonTypeInfo annotation that might be set on type
-					throw new ObjectMappingException(
-							"cannot instantiate abstract class: " + type);
+					if (((Class) type).isAnnotationPresent(JsonTypeInfo.class)) {
+						JsonTypeInfo typeInfo = (JsonTypeInfo) ((Class) type).getAnnotation(JsonTypeInfo.class);
+						if (typeInfo.use() == JsonTypeInfo.Id.CLASS && typeInfo.include() == JsonTypeInfo.As.PROPERTY) {
+							JsonNode classNameNode = ((ObjectNode) json).get(typeInfo.property());
+							if (classNameNode == null) {
+								throw new ObjectMappingException("No type info property '" + typeInfo.property() + "' found in json for abstract class: " + type);
+							}
+							String className = classNameNode.textValue();
+							Class concreteClass = Class.forName(className);
+							obj = concreteClass.newInstance();
+							type = concreteClass; // use the concrete class for setter lookups below
+						} else {
+							throw new ObjectMappingException("Unsupported JsonTypeInfo configuration on: " + type);
+						}
+					} else {
+						throw new ObjectMappingException("cannot instantiate abstract class: " + type);
+					}
 				} else {
 					obj = ((Class) type).newInstance();
 				}
+
 
 				// iterate over the fields in the json object and invoke the
 				// corresponding setter on the instance

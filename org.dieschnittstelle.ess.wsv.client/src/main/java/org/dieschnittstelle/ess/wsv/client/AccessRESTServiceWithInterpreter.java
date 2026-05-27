@@ -1,9 +1,11 @@
 package org.dieschnittstelle.ess.wsv.client;
 
+import java.lang.reflect.Proxy;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.dieschnittstelle.ess.entities.crm.Address;
+import org.dieschnittstelle.ess.entities.crm.AbstractTouchpoint;
 import org.dieschnittstelle.ess.entities.crm.StationaryTouchpoint;
 import org.dieschnittstelle.ess.utils.Utils;
 import org.dieschnittstelle.ess.wsv.client.service.ITouchpointCRUDServiceClient;
@@ -26,29 +28,29 @@ public class AccessRESTServiceWithInterpreter {
 		 * TODO WSV1 (here and following TODOs): create an instance of the invocation handler passing the service
 		 * interface and the base url
 		 */
-        JAXRSClientInterpreter invocationHandler = null;
+        JAXRSClientInterpreter invocationHandler = new JAXRSClientInterpreter(ITouchpointCRUDServiceClient.class, "http://localhost:8080/api");
 
 		/*
 		 * TODO: create a client for the web service using Proxy.newProxyInstance()
 		 */
-        ITouchpointCRUDServiceClient serviceProxy = null;
+        ITouchpointCRUDServiceClient serviceProxy = (ITouchpointCRUDServiceClient) Proxy.newProxyInstance(AccessRESTServiceWithInterpreter.class.getClassLoader(), new Class[]{ITouchpointCRUDServiceClient.class}, invocationHandler);
 
         show("serviceProxy: " + serviceProxy);
 
         step();
 
         // 1) read out all touchpoints
-        List<StationaryTouchpoint> tps = serviceProxy.readAllTouchpoints();
+        List<AbstractTouchpoint> tps = serviceProxy.readAllTouchpoints();
         show("read all: " + tps);
 
 
         // TODO: comment-in the call to delete() once this is handled by the invocation handler
 //		// 2) delete the touchpoint if there is one
-//		if (tps.size() > 0) {
-//          step();
-//			show("deleted: "
-//					+ serviceProxy.deleteTouchpoint(tps.get(0).getId()));
-//		}
+		if (tps.size() > 0) {
+          step();
+			show("deleted: "
+					+ serviceProxy.deleteTouchpoint(tps.get(0).getId()));
+		}
 //
 //		// 3) create a new touchpoint
         step();
@@ -69,7 +71,7 @@ public class AccessRESTServiceWithInterpreter {
 //		/*
 //		 * 4) read out the new touchpoint
 //		 */
-//		show("read created: " + serviceProxy.readTouchpoint(tp.getId()));
+		show("read created: " + serviceProxy.readTouchpoint(tp.getId()));
 //
 
         // TODO: comment-in the call to update() once this is handled
@@ -77,12 +79,12 @@ public class AccessRESTServiceWithInterpreter {
 //		 * 5) update the touchpoint
 //		 */
 //		// change the name
-//		step();
-//		tp.setName("BHT WSV Mensa");
-//
-//
-//		tp = serviceProxy.updateTouchpoint(tp.getId(), tp);
-//		show("updated: " + tp);
+		step();
+		tp.setName("BHT WSV Mensa");
+
+
+        tp = (StationaryTouchpoint) serviceProxy.updateTouchpoint(tp.getId(), tp);
+        show("updated: " + tp);
 
     }
 
