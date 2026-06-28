@@ -27,11 +27,11 @@ public interface ProductCRUD {
 	public AbstractProduct updateProduct(AbstractProduct update);
 
 	@GET
-	@Path("/id")
+	@Path("/{id}")
 	public AbstractProduct readProduct(@PathParam("id") long productID);
 
 	@DELETE
-	@Path("/id")
+	@Path("/{id}")
 	public boolean deleteProduct(@PathParam("id") long productID);
 
 	@GET
