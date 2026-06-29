@@ -11,13 +11,11 @@ public class ProductCRUDClient implements ProductCRUD {
 	private ProductCRUD serviceProxy;
 
 	public ProductCRUDClient() throws Exception {
-		// obtain a Resteasy proxy for the ProductCRUD service interface; all methods delegate to it
 		this.serviceProxy = ServiceProxyFactory.getInstance().getProxy(ProductCRUD.class);
 	}
 
 	public AbstractProduct createProduct(AbstractProduct prod) {
 		AbstractProduct created = serviceProxy.createProduct(prod);
-		// as a side-effect we set the id of the created product on the argument before returning
 		prod.setId(created.getId());
 		return created;
 	}

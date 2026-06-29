@@ -24,7 +24,6 @@ public class Campaign extends AbstractProduct implements Serializable {
 	 */
 	private static final long serialVersionUID = 4407600000386810001L;
 
-	// MIP+JPA5: Campaign and ProductBundle are modelled as a composition
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ProductBundle> bundles;
 

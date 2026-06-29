@@ -13,6 +13,7 @@ public class ProductBundle implements Serializable {
 	protected static Logger logger = org.apache.logging.log4j.LogManager.getLogger(ProductBundle.class);
 
 	/**
+	 * 
 	 */
 	private static final long serialVersionUID = 1501911067906145681L;
 
@@ -20,8 +21,6 @@ public class ProductBundle implements Serializable {
 	@GeneratedValue
 	private long id;
 
-	// the referenced product exists independently of the bundle, hence a plain
-	// ManyToOne without cascade: deleting a bundle must not delete the product
 	@ManyToOne
 	private IndividualisedProductItem product;
 
