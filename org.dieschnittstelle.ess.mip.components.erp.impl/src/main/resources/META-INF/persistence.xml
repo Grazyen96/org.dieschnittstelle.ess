@@ -16,9 +16,10 @@
 		<class>org.dieschnittstelle.ess.entities.erp.PointOfSale</class>
 		<class>org.dieschnittstelle.ess.entities.erp.IndividualisedProductItem</class>
 		<class>org.dieschnittstelle.ess.entities.erp.AbstractProduct</class>
-		<!-- MIP+JPA5: Campaign and its associated ProductBundle entities -->
 		<class>org.dieschnittstelle.ess.entities.erp.Campaign</class>
 		<class>org.dieschnittstelle.ess.entities.erp.ProductBundle</class>
+		<class>org.dieschnittstelle.ess.entities.erp.StockItem</class>
+
 		<properties>
 			<!-- hibernate/wildfly automatic schema generation -->
 			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
