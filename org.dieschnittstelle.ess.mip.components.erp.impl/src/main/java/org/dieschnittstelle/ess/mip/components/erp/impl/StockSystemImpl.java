@@ -12,6 +12,7 @@ import org.dieschnittstelle.ess.mip.components.erp.crud.impl.PointOfSaleCRUDImpl
 import org.dieschnittstelle.ess.mip.components.erp.crud.impl.StockItemCRUD;
 import org.dieschnittstelle.ess.utils.interceptors.Logged;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -48,26 +49,54 @@ public class StockSystemImpl  implements StockSystem {
 
     @Override
     public List<IndividualisedProductItem> getProductsOnStock(long pointOfSaleId) {
-        return List.of();
+        PointOfSale pos = posCRUD.readPointOfSale(pointOfSaleId);
+        List<IndividualisedProductItem> products = new ArrayList<>();
+        for (StockItem si : stockItemCRUD.readStockItemsForPointOfSale(pos)) {
+            products.add(si.getProduct());
+        }
+        return products;
     }
 
     @Override
     public List<IndividualisedProductItem> getAllProductsOnStock() {
-        return List.of();
+        List<IndividualisedProductItem> products = new ArrayList<>();
+        for (PointOfSale pos : posCRUD.readAllPointsOfSale()) {
+            for (IndividualisedProductItem product : getProductsOnStock(pos.getId())) {
+                if (!products.contains(product)) {
+                    products.add(product);
+                }
+            }
+        }
+        return products;
     }
 
     @Override
     public int getUnitsOnStock(IndividualisedProductItem product, long pointOfSaleId) {
-        return 0;
+        PointOfSale pos = posCRUD.readPointOfSale(pointOfSaleId);
+        StockItem si = stockItemCRUD.readStockItem(product, pos);
+        if (si == null) {
+            return 0;
+        }
+        return si.getUnits();
     }
 
     @Override
     public int getTotalUnitsOnStock(IndividualisedProductItem product) {
-        return 0;
+        int total = 0;
+        for (StockItem si : stockItemCRUD.readStockItemsForProduct(product)) {
+            total += si.getUnits();
+        }
+        return total;
     }
 
     @Override
     public List<Long> getPointsOfSale(IndividualisedProductItem product) {
-        return List.of();
+        List<Long> pointsOfSale = new ArrayList<>();
+        for (StockItem si : stockItemCRUD.readStockItemsForProduct(product)) {
+            if (!pointsOfSale.contains(si.getPos().getId())) {
+                pointsOfSale.add(si.getPos().getId());
+            }
+        }
+        return pointsOfSale;
     }
 }
