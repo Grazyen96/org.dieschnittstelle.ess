@@ -1,6 +1,11 @@
 package org.dieschnittstelle.ess.mip.client.shopping;
 
 import org.apache.logging.log4j.Logger;
+import org.dieschnittstelle.ess.entities.erp.Campaign;
+import org.dieschnittstelle.ess.entities.shopping.ShoppingCartItem;
+import org.dieschnittstelle.ess.mip.client.apiclients.ServiceProxyFactory;
+import org.dieschnittstelle.ess.mip.client.apiclients.ShoppingCartClient;
+import org.dieschnittstelle.ess.mip.components.shopping.api.PurchaseService;
 import org.dieschnittstelle.ess.mip.components.shopping.api.ShoppingException;
 import org.dieschnittstelle.ess.entities.crm.AbstractTouchpoint;
 import org.dieschnittstelle.ess.entities.crm.Customer;
@@ -18,30 +23,49 @@ public class PurchaseServiceClient implements ShoppingBusinessDelegate {
 	 *  in this case and access the shopping cart using the provided getter method
 	 */
 
+	private PurchaseService purchaseServiceProxy;
+
+	private ShoppingCartClient shoppingCartClient;
+
+	private AbstractTouchpoint touchpoint;
+
+	private Customer customer;
+
 	public PurchaseServiceClient() {
 		/* TODO: instantiate the proxy using the ServiceProxyFactory (see the other client classes) */
+		this.purchaseServiceProxy = ServiceProxyFactory.getInstance().getProxy(PurchaseService.class);
+		try {
+			this.shoppingCartClient = new ShoppingCartClient();
+        } catch (Exception e) {
+            throw new RuntimeException("Error initializing ShoppingCartClient" + e, e);
+        }
 	}
 
 	/* TODO: implement the following methods s */
 
 	@Override
 	public void setTouchpoint(AbstractTouchpoint touchpoint) {
-	
+		this.touchpoint = touchpoint;
 	}
 
 	@Override
 	public void setCustomer(Customer customer) {
-	
+		this.customer = customer;
+
 	}
 
 	@Override
 	public void addProduct(AbstractProduct product, int units) {
+		this.shoppingCartClient.addItem(new ShoppingCartItem(product.getId(), units, product instanceof Campaign));
 	
 	}
 
 	@Override
 	public void purchase() throws ShoppingException {
-	
+		this.purchaseServiceProxy.purchaseCartAtTouchpointForCustomer(new PurchaseService.PurchaseDTO(
+				shoppingCartClient.getShoppingCartEntityId(),
+				this.touchpoint.getId(),
+				this.customer.getId()));
 	}
 
 }
