@@ -23,8 +23,9 @@ import org.dieschnittstelle.ess.mip.components.shopping.cart.impl.ShoppingCartEn
 import org.dieschnittstelle.ess.utils.interceptors.Logged;
 import org.dieschnittstelle.ess.entities.erp.IndividualisedProductItem;
 import org.dieschnittstelle.ess.entities.erp.ProductBundle;
-import org.dieschnittstelle.ess.mip.components.erp.api.StockSystem;
+import org.dieschnittstelle.ess.mip.components.erp.api.StockSystemService;
 import org.dieschnittstelle.ess.mip.components.erp.crud.api.ProductCRUD;
+import org.dieschnittstelle.ess.mip.components.erp.api.dto.StockItemDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,7 +60,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     private ProductCRUD productCRUD;
 
     @Inject
-    private StockSystem stockSystem;
+    private StockSystemService stockSystemService;
 
     /**
      * the customer
@@ -170,7 +171,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 // 2) fuer jedes ProductBundle das betreffende Produkt in der auf dem Bundle angegebenen Anzahl, multipliziert mit dem Wert von
                 // item.getUnits() aus dem Warenkorb,
                 // - hinsichtlich Verfuegbarkeit ueberpruefen, und
-                // - falls verfuegbar, aus dem Warenlager entfernen - nutzen Sie dafür die StockSystem bean
+                // - falls verfuegbar, aus dem Warenlager entfernen - nutzen Sie dafür die StockSystemService bean
                 // (Anm.: item.getUnits() gibt Ihnen Auskunft darüber, wie oft ein Produkt, im vorliegenden Fall eine Kampagne, im
                 // Warenkorb liegt)
                 Campaign campaign = (Campaign) product;
@@ -179,8 +180,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                     IndividualisedProductItem bundledProduct = bundle.getProduct();
                     int requiredUnits = bundle.getUnits() * item.getUnits();
 
-                    int availableUnits = stockSystem.getUnitsOnStock(
-                            bundledProduct,
+                    int availableUnits = stockSystemService.getUnitsOnStock(
+                            bundledProduct.getId(),
                             pointOfSaleId);
 
                     if (availableUnits < requiredUnits) {
@@ -192,10 +193,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                                         + ", available: " + availableUnits);
                     }
 
-                    stockSystem.removeFromStock(
-                            bundledProduct,
-                            pointOfSaleId,
-                            requiredUnits);
+                    stockSystemService.removeFromStock(
+                            new StockItemDTO(bundledProduct.getId(), pointOfSaleId, requiredUnits));
                 }
 
                 this.campaignTracking.purchaseCampaignAtTouchpoint(item.getErpProductId(), this.touchpoint,
@@ -208,8 +207,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                 IndividualisedProductItem individualisedProduct =
                         (IndividualisedProductItem) product;
 
-                int availableUnits = stockSystem.getUnitsOnStock(
-                        individualisedProduct,
+                int availableUnits = stockSystemService.getUnitsOnStock(
+                        individualisedProduct.getId(),
                         pointOfSaleId);
 
                 if (availableUnits < item.getUnits()) {
@@ -221,10 +220,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                                     + ", available: " + availableUnits);
                 }
 
-                stockSystem.removeFromStock(
-                        individualisedProduct,
-                        pointOfSaleId,
-                        item.getUnits());
+                stockSystemService.removeFromStock(
+                        new StockItemDTO(individualisedProduct.getId(), pointOfSaleId, item.getUnits()));
             }
 
         }
