@@ -1,6 +1,6 @@
 package org.dieschnittstelle.ess.mip.components.shopping.impl;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 @Transactional
 @Logged
-@ApplicationScoped
+@RequestScoped
 public class PurchaseServiceImpl implements PurchaseService {
     protected static Logger logger = org.apache.logging.log4j.LogManager.getLogger(PurchaseServiceImpl.class);
 
