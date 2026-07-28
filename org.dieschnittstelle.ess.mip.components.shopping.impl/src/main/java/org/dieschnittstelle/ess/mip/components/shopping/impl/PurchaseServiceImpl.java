@@ -72,28 +72,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     private AbstractTouchpoint touchpoint;
 
-//    public ShoppingSession() {
-//        logger.info("<constructor>");
-//        try {
-//            this.campaignTracking = new CampaignTrackingClient();
-//            this.customerTracking = new CustomerTrackingClient();
-//            this.shoppingCart = new ShoppingCartClient();
-//        } catch (Exception e) {
-//            throw new RuntimeException("initialise() failed: " + e, e);
-//        }
-//    }
 
-    public void setTouchpoint(AbstractTouchpoint touchpoint) {
-        this.touchpoint = touchpoint;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public void addProduct(AbstractProduct product, int units) {
-        this.shoppingCart.addItem(new ShoppingCartItem(product.getId(), units, product instanceof Campaign));
-    }
 
     /*
      * verify whether campaigns are still valid
